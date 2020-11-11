@@ -2,7 +2,8 @@
 class DataGen_Param
 {
 public:
-	// See thesis pag. 42-43 for a detailed description of these parameters
+	// See README for a more detailed description of the parameters
+
 	double capacity_ratio;
 	double corr_cap_pop;
 	double mean_pref;
