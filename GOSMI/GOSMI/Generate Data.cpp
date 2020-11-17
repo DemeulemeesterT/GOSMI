@@ -1,6 +1,6 @@
 #include "Data.h"
 
-void main() {
+int main() {
 	// Create a data instance with the following parameters
 
 	// Number of agents:
@@ -20,6 +20,7 @@ void main() {
 	
 	// If you would like to change some parameters, do it here:
 		// e.g., parameters->mean_pref = 4;
+			// See 'DataGen_Param.h' for a description of the parameters 
 
 	// Generate your data
 	Data* D = new Data(nagents, nobjects, parameters, print, seed);

@@ -1,7 +1,7 @@
 #include "DataGen_Param.h"
 
 DataGen_Param::DataGen_Param() {
-	// Create an instane of the Data Generation Parameters with the values from Ghent:
+	// Create an instance of the Data Generation Parameters with the values from Ghent:
 	this->capacity_ratio = 1.2;
 	this->corr_cap_pop = 0.21;
 	this->mean_pref = 2.42;

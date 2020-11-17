@@ -32,6 +32,5 @@ public:
 	~Data();
 
 	void print_data(void);
-	DataGen_Param* obtain_statistics(bool print);
 };
 

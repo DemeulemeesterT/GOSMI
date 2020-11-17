@@ -31,6 +31,7 @@ Data::Data(int nagents, int nobjects, DataGen_Param* parameters, bool print, uns
 	this->parameters = parameters;
 
 
+
 	// **********************************
 	// ********* INITIALIZATION *********
 	// **********************************
@@ -113,9 +114,12 @@ Data::Data(int nagents, int nobjects, DataGen_Param* parameters, bool print, uns
 	}
 	delete[] capacities_double;
 
+
+
 	// *******************************************
 	// ********* LENGTH PREFERENCE LISTS *********
 	// *******************************************
+
 	std::normal_distribution<double> normal_pref_length(parameters->mean_pref, parameters->sigma_pref);
 	for (i = 0; i < nagents; i++) {
 		this->pref_length[i] = (int)normal_pref_length(generator);
@@ -136,18 +140,19 @@ Data::Data(int nagents, int nobjects, DataGen_Param* parameters, bool print, uns
 		this->pref[i] = new int[this->pref_length[i]];
 	}
 
-	// IMPORTANT: initialize this preference list, otherwise the data generation might not work!
-	// The reason is that sometimes the value of 'pref[i][p]' might be the value of a object in the list.
-	// If this is the case, the program will loop sometimes because it cannot find a object that is not yet in the list (if all (non-)popular objects are already included)
+	// IMPORTANT: initialize this preference list
 	for (i = 0; i < nagents; i++) {
 		for (int p = 0; p < this->pref_length[i]; p++) {
 			this->pref[i][p] = -1;
 		}
 	}
 
+
+
 	// *************************************
 	// ********* POPULARITY RATIOS *********
 	// *************************************
+
 	// The mean popularity ratio is the total number of submitted preferences divided by the total capacity.
 	double mean_pop_ratio = (double)sum(this->pref_length, nagents) / (double)sum(this->capacities, nobjects);
 
@@ -158,7 +163,7 @@ Data::Data(int nagents, int nobjects, DataGen_Param* parameters, bool print, uns
 	}
 
 	// It is not possible that objects have a negative popularity ratio...
-	// Therefore, we simply replace these by another draw from the same normal distribution
+	// Therefore, we replace these by another draw from the same normal distribution
 	// and we make it correlated to the capacity.
 	for (i = 0; i < nobjects; i++) {
 		while (popularity_aid[i] < 0.2) {
@@ -168,8 +173,6 @@ Data::Data(int nagents, int nobjects, DataGen_Param* parameters, bool print, uns
 			popularity_aid[i] = mean_pop_ratio * (1 + parameters->CV_pop * popularity_aid[i]);
 		}
 	}
-
-
 
 	// Shift all popularity ratios to ensure that the sum of all submitted preferences is indeed
 	// equal to the sum over all objects of the expected number of occurrences of each object.
@@ -189,19 +192,21 @@ Data::Data(int nagents, int nobjects, DataGen_Param* parameters, bool print, uns
 	}
 
 
+
 	// **************************************************
 	// ********* ASSIGN PREFERENCES TO agents *********
 	// **************************************************
+
 	// We want to parametrize the correlation between the number of submitted preferences
 	// and the popularity of the objects in the preference list
 
-	// Create a deep copy of 'popularity_aid' that will be sorted:
+	// Create a copy of 'popularity_aid' that will be sorted:
 	double* popularity_aid_sorted = new double[nobjects];
 	for (i = 0; i < nobjects; i++) {
 		popularity_aid_sorted[i] = popularity_aid[i];
 	}
 
-	// Define a object to be popular if it is in the 'popularity_percentage' % most popular objects
+	// Define an object to be popular if it is in the 'popularity_percentage' % most popular objects
 	std::sort(popularity_aid_sorted, popularity_aid_sorted + nobjects, std::greater<double>());
 	int popular_index = (int)ceil(parameters->pop_percentage * nobjects) - 1;
 	double popularity_treshold = popularity_aid_sorted[popular_index] - 0.00001;
@@ -404,37 +409,6 @@ void Data::print_data() {
 	}
 }
 
-DataGen_Param* Data::obtain_statistics(bool print) {
-	// Create an object with the default parameters
-	DataGen_Param* parameters = new DataGen_Param();
-
-	// Create an object with the actual statistics
-	DataGen_Param* stats = new DataGen_Param();
-	stats->capacity_ratio = (double)sum(this->capacities, nobjects) / nagents;
-	stats->corr_cap_pop = corr(this->capacities, this->popularity, nobjects);
-	stats->CV_cap = stand_dev(this->capacities, nobjects) / average(this->capacities, nobjects);
-	stats->CV_pop = stand_dev(this->popularity, nobjects) / average(this->popularity, nobjects);
-	stats->delta_1 = NULL;
-	stats->delta_2 = NULL;
-	stats->mean_pref = average(this->pref_length, nagents);
-	stats->pop_percentage = (double)sum(this->popular, nobjects) / nobjects;
-	stats->sigma_pref = stand_dev(this->pref_length, nagents);
-
-	if (print) {
-		printf("\n\nSome statistics (default in brackets):\n");
-		printf("\tCapacity ratio =  %.2f (%.2f)\n", stats->capacity_ratio, parameters->capacity_ratio);
-		printf("\tCorr_cap_pop = %.2f (%.2f)\n", stats->corr_cap_pop, parameters->corr_cap_pop);
-		printf("\tCV_cap = %.2f (%.2f)\n", stats->CV_cap, parameters->CV_cap);
-		printf("\tCV_pop = %.2f (%.2f)\n", stats->CV_pop, parameters->CV_pop);
-		printf("\tMean preference length = %.2f (%.2f)\n", stats->mean_pref, parameters->mean_pref);
-		printf("\tPopularity percentage = %.2f (%.2f)\n", stats->pop_percentage, parameters->pop_percentage);
-	}
-
-	return stats;
-
-	delete parameters;
-}
-
 double* cholesky(double* covar, int n) {
 	// From site: https://rosettacode.org/wiki/Cholesky_decomposition#C
 	double* G = (double*)calloc(n * n, sizeof(double));
@@ -458,7 +432,7 @@ double* cholesky(double* covar, int n) {
 }
 
 int pick_object(bool pop, int p, int i, int nobjects, int popular_count, bool* popular, double* selection_pop_cum, double* selection_n_pop_cum, int* preferences, int pref_length, std::mt19937 generator) {
-	// 'pick_object' randomly selects a object based on the objects that are already in the preference list,
+	// 'pick_object' randomly selects an object based on the objects that are already in the preference list,
 	// whether or not it should be a popular object and based on the popularity ratios of the objects
 
 	bool new_object = false;
@@ -499,7 +473,7 @@ int pick_object(bool pop, int p, int i, int nobjects, int popular_count, bool* p
 					// agent i will receive a non-popular object
 					pop = false;
 
-					// Set 'object_proposal' to a object that is already in the list
+					// Set 'object_proposal' to an object that is already in the list
 					object_proposal = preferences[0];
 				}
 				else {
@@ -538,7 +512,7 @@ int pick_object(bool pop, int p, int i, int nobjects, int popular_count, bool* p
 					// agent i will receive a popular object
 					pop = true;
 
-					// Set 'object_proposal' to a object that is already in the list
+					// Set 'object_proposal' to an object that is already in the list
 					object_proposal = preferences[0];
 				}
 				else {
@@ -553,41 +527,11 @@ int pick_object(bool pop, int p, int i, int nobjects, int popular_count, bool* p
 			}
 		}
 
-		// Does 'object_proposal already appear in the preference list of agent i?
+		// Does 'object_proposal' already appear in the preference list of agent i?
 		new_object = true;
 		for (int pref_index = 0; pref_index < pref_length; pref_index++) {
 			if (preferences[pref_index] == object_proposal) {
 				new_object = false;
-				/*
-				// Are all objects of this category finished?
-				// Go through all objects in the preference list and check their popularity.
-				int popular_count_pref = 0;
-				int n_popular_count_pref = 0;
-				for (int p_ind = 0; p_ind < pref_length; p_ind++) {
-					if (popular[preferences[p_ind]]) popular_count_pref++;
-					else n_popular_count_pref++;
-				}
-
-				if (pop) {
-					if (popular_count_pref == popular_count) {
-						// If all popular objects have been included in the preference list:
-						// Indicate that we have to look for a non-popular object instead of a popular object.
-						pop = false;
-					}
-				}
-				else {
-					if (n_popular_count_pref == nobjects - popular_count) {
-						// If all non-popular objects have been included in the preference list
-						pop = true;
-					}
-				}
-
-				if (popular_count_pref + n_popular_count_pref == nobjects) {
-					new_object = true;
-					object_proposal = -1;
-				}
-
-				*/
 				break;
 			}
 		}
