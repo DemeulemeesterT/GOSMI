@@ -32,5 +32,8 @@ public:
 	~Data();
 
 	void print_data(void);
+	void export_data(string name);
+		// Export the data to two .txt files. One that contains the preferences, and one that contains the capacities
+		// Example: export_data("test") creates a file "test_pref.txt" and a file "test_cap.txt"
 };
 

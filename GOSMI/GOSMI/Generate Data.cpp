@@ -25,6 +25,10 @@ int main() {
 	// Generate your data
 	Data* D = new Data(nagents, nobjects, parameters, print, seed);
 
+	// Enter the name of the file you want to export the data to
+		// Comment out the next line if you do not wish to export the data
+	D->export_data((string)"test");
+
 	delete parameters;
 	delete D;
 

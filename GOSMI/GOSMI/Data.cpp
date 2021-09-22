@@ -409,6 +409,30 @@ void Data::print_data() {
 	}
 }
 
+void Data::export_data(string name) {
+	ofstream P,C;
+	string name_pref = name;
+	name_pref.append("_pref.txt");
+	P.open(name_pref);
+	// We just print the preferences, each line represents a different agent
+	for (int i = 0; i < nagents; i++) {
+		for (int j = 0; j < pref_length[i]; j++) {
+			P << pref[i][j] << "\t";
+		}
+		P << "\n";		
+	}
+	P.close();
+
+	string name_cap = name;
+	name_cap.append("_cap.txt");
+	C.open(name_cap);
+	// Just print the capacities, each line represents a different object
+	for (int i = 0; i < nobjects; i++) {
+		C << capacities[i] << "\n";
+	}
+	C.close();
+}
+
 double* cholesky(double* covar, int n) {
 	// From site: https://rosettacode.org/wiki/Cholesky_decomposition#C
 	double* G = (double*)calloc(n * n, sizeof(double));
